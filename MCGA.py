@@ -1,5 +1,6 @@
 import os
 import initialisation as init
+import encode
 
 
 def get_inits(tsp_path):
@@ -10,6 +11,23 @@ def get_inits(tsp_path):
         tours_200 += tours_40
     return tours_200
 
+
+def violate(prob, ind):
+    print('old', ind.vio)
+    weight = 0
+    for index in range(len(ind.kp)):
+        if ind.kp[index] == 1:
+            weight += prob.weight[index]
+    ind.weight = weight
+    if weight > prob.W:
+        ind.vio = True
+    else:
+        ind.vio = False
+    print('new', ind.vio)
+    print()
+
+def repair(prob, ind):
+    pass
 
 def algorithm(ttp_path, tsp_path):
     prob = init.read_ttp(ttp_path)
@@ -23,6 +41,22 @@ def algorithm(ttp_path, tsp_path):
     opt_mutate = 0.35
     bitflip_mutate = 0.825
 
+    item_id_at_city = {}
+    for city_id in prob.city_ID:
+        items = []
+        for index in range(len(prob.item_ID)):
+            if city_id == prob.belongto[index]:
+                items.append(prob.item_ID[index])
+        item_id_at_city[city_id] = items
+
+    kp = [0] * len(prob.item_ID)
+
+    pop = []
+    for indicator in range(pop_size):
+        ind = encode.Ind(tours_200[indicator], kp)
+        violate(prob, ind)
+        pop.append(ind)
+    print(len(pop))
 
 
 if __name__ == '__main__':

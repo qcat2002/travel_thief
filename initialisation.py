@@ -209,5 +209,5 @@ if __name__ == '__main__':
     file = os.path.join('result', 'clk_tours', 'tsp-?.csv')
     with open(file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=' ')
-        for row in rs:
-            writer.writerow(row)
+        for row_main in rs:
+            writer.writerow(row_main)
