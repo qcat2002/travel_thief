@@ -1,6 +1,7 @@
 import os
 import initialisation as init
 import encode
+import random
 
 
 def get_inits(tsp_path):
@@ -64,6 +65,14 @@ def evaluate(prob, item_id_at_city, ind):
                 profit += prob.profit[item_id-1]
                 weight += prob.weight[item_id-1]
         time += distance / (prob.max_speed - (v * weight))
+
+    distance = prob.dist[ind.tour[-1]][0]
+    items = item_id_at_city[ind.tour[-1]]
+    for item_id in items:
+        if ind.kp[item_id - 1] == 1:
+            profit += prob.profit[item_id - 1]
+            weight += prob.weight[item_id - 1]
+    time += distance / (prob.max_speed - (v * weight))
     ind.profit = profit
     ind.time = time
     ind.fitness = profit - (prob.W * time)
@@ -77,6 +86,7 @@ def algorithm(ttp_path, tsp_path):
     #     print(tour)
     # print(len(tours_200))
     pop_size = 200
+    max_gen = 100
     order_cross = 1
     n_point_cross = 1
     opt_mutate = 0.35
@@ -101,6 +111,43 @@ def algorithm(ttp_path, tsp_path):
         evaluate(prob, item_id_at_city, ind)
         pop.append(ind)
 
+    for gen in range(max_gen):
+        old_pop = pop[:]
+        old_pop = sorted(old_pop, key=lambda x: x.fitness, reverse=True)
+        elites = old_pop[:12]
+
+        parents = []
+        while len(parents) <= pop_size:
+            candidates = random.sample(old_pop, 2)
+            parents.append(max(candidates, key=lambda x: x.fitness))
+        print([ind.fitness for ind in parents])
+
+        i = 0
+        j = 1
+        offspring = []
+        while j < len(parents):
+            p1 = parents[i]
+            p2 = parents[j]
+            tsp1 = p1.tour[:]
+            tsp2 = p2.tour[:]
+            length = len(tsp1)
+            # order crossover
+            masked = [random.choice([0,1]) for ccc in range(length)]
+            new_tsp1 = [-1] * length
+            new_tsp2 = [-1] * length
+            b1 = []
+            b2 = []
+            for index in range(len(tsp1)):
+                if masked[index] == 1:
+                    new_tsp1[index] = tsp1[index]
+                    new_tsp2[index] = tsp2[index]
+                else:
+                    b1.append(tsp1[index])
+                    b2.append(tsp2[index])
+            # print('a', b1)
+            # print('b', b2)
+            i += 2
+            j += 2
 
 
 if __name__ == '__main__':
