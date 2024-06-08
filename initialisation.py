@@ -2,6 +2,7 @@ import csv
 import math
 import random
 import multiprocessing as mp
+import os
 
 class Tours:
     def __init__(self):
@@ -124,6 +125,7 @@ def lk(tour, dist, tours, id):
     best_length = tour_length(best_tour, dist)
     improvement = True
     budget = 10000000
+    budget = 100
     while improvement and budget > 0:
         improvement = False
         for i in range(1, len(tour) - 1):  # 从1开始，跳过第一个城市
@@ -161,7 +163,7 @@ def clk(prob, pop_size):
         p.join()
         exits.append(p.exitcode)
 
-    print(exits)
+    raw_routes = []
     while not tours.empty():
         opt = tours.get()
         index_init = 0
@@ -169,16 +171,68 @@ def clk(prob, pop_size):
             index_init += 1
         if index_init != 0:
             opt = opt[index_init:] + opt[:index_init]
-
+        raw_routes.append(opt)
         formal_tour = [num+1 for num in opt]
         length = tour_length(opt, prob.dist)
         print("Optimized tour:", formal_tour)
         print("Tour length:", length)
+    return raw_routes
+
+
+def draw(prob, routes, timer):
+    import matplotlib.pyplot as plt
+    row = 2
+    col = 4
+    fig, axes = plt.subplots(nrows=row, ncols=col, figsize=(24, 12), dpi=300)
+
+    # 假设您有一个名为 prob 的对象，其中包含 X 和 Y 坐标
+    # 您需要将 prob.X 和 prob.Y 替换为您的实际数据
+    colors = ['orange', (135/255, 206/255, 250/255)]
+    indicator = 0
+    for x in range(row):
+        for y in range(col):
+            axes[x, y].scatter(prob.X, prob.Y, color='black')  # 在每个子图上绘制散点图
+            axes[x, y].tick_params(axis='both', which='major', labelsize=18, width=3, length=6)  # 设置刻度标签的样式
+            xs = []
+            ys = []
+            for index in range(len(routes[indicator])):
+                xs.append(prob.X[routes[indicator][index]])
+                ys.append(prob.Y[routes[indicator][index]])
+            xs.append(prob.X[routes[indicator][-1]])
+            ys.append(prob.Y[routes[indicator][-1]])
+            axes[x, y].plot(xs, ys, color=colors[x%len(colors)])
+            indicator += 1
+    # else:
+    #     for y in range(col):
+    #         axes[y].scatter(prob.X, prob.Y)
+    #         axes[y].tick_params(axis='both', which='major', labelsize=18, width=3, length=6)
+
+    save = os.path.join('result', 'clk_tours')
+    if not os.path.exists(save):
+        os.makedirs(save)
+    fig.suptitle(f'clk_tours-trials{((timer-1)*8)+1}~{timer*8}', fontsize=26, fontweight='bold')
+    plt.tight_layout()
+    plt.savefig(os.path.join(save, f'clk_tours-{timer}.png'))
+    plt.show()
 
 
 if __name__ == '__main__':
     path = 'data/dataset/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp'
     problem = read_ttp(path)
     problem.info()
+    inds = 40
+    sub = 8
+    rs = clk(problem, inds)
+    processed = 0
+    runtime = 0
+    while processed < inds:
+        seg = rs[processed:processed+sub]
+        draw(problem, seg, runtime+1)
+        runtime += 1
+        processed += sub
 
-    clk(problem, 5)
+    file = os.path.join('result', 'clk_tours','tsp-1.csv')
+    with open(file, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=' ')
+        for row in rs:
+            writer.writerow(row)
