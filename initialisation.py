@@ -231,7 +231,7 @@ if __name__ == '__main__':
         runtime += 1
         processed += sub
 
-    file = os.path.join('result', 'clk_tours','tsp-2.csv')
+    file = os.path.join('result', 'clk_tours','tsp-5.csv')
     with open(file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=' ')
         for row in rs:
