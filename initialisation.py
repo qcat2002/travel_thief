@@ -1,7 +1,11 @@
 import csv
 import math
 import random
+import multiprocessing as mp
 
+class Tours:
+    def __init__(self):
+        self.tours = []
 
 class Problem:
     def __init__(self):
@@ -102,58 +106,74 @@ def read_ttp(path):
 
         return prob
 
+
 def tour_length(tour, dist):
     length = 0
     for i in range(len(tour)):
         length += dist[tour[i - 1]][tour[i]]
     return length
 
+
 def two_opt_swap(tour, i, j):
     new_tour = tour[:i] + tour[i:j+1][::-1] + tour[j+1:]
     return new_tour
 
-def lk(tour, dist):
+
+def lk(tour, dist, tours, id):
     best_tour = tour[:]
     best_length = tour_length(best_tour, dist)
     improvement = True
-    # budget = 0
-    while improvement:
+    budget = 10000000
+    while improvement and budget > 0:
         improvement = False
         for i in range(1, len(tour) - 1):  # 从1开始，跳过第一个城市
             for j in range(i + 1, len(tour)):
                 new_tour = two_opt_swap(tour, i, j)
                 new_length = tour_length(new_tour, dist)
-                # budget += 1
+                budget -= 1
                 if new_length < best_length:
                     # print('更新')
-                    # print(new_length, best_length)
+                    print(f'处理器{id}->更新{new_length}')
                     # print(new_tour)
                     best_tour = new_tour[:]
                     best_length = new_length
                     improvement = True
         tour = best_tour[:]
-        # print(budget)
-    return best_tour
+    print(f'处理器{id}预算用完！')
+    tours.put(best_tour)
+
 
 def clk(prob, pop_size):
-    init_tour = [num-1 for num in problem.city_ID[1:]]
-    random.shuffle(init_tour)
-    init_tour = [0] + init_tour
-    print(init_tour)
-    # return initial, 100
-    opt = lk(init_tour, prob.dist)
+    tours = mp.Queue()
+    processes = []
+    for id in range(pop_size):
+        init_tour = [num-1 for num in prob.city_ID[1:]]
+        random.shuffle(init_tour)
+        init_tour = [0] + init_tour
+        print(f'处理器-{id}开始：')
+        print(init_tour)
+        p = mp.Process(target=lk, args=(init_tour, prob.dist, tours, id+1))
+        processes.append(p)
+        p.start()
 
-    index_ini = 0
-    while opt[index_ini] != 0:
-        index_ini += 1
+    exits = []
+    for p in processes:
+        p.join()
+        exits.append(p.exitcode)
 
-    if index_ini != 0:
-        opt = opt[index_ini:] + opt[:index_ini]
+    print(exits)
+    while not tours.empty():
+        opt = tours.get()
+        index_init = 0
+        while opt[index_init] != 0:
+            index_init += 1
+        if index_init != 0:
+            opt = opt[index_init:] + opt[:index_init]
 
-    formal_tour = [num+1 for num in opt]
-    length = tour_length(opt, prob.dist)
-    print("Optimized tour:", formal_tour)
-    print("Tour length:", length)
+        formal_tour = [num+1 for num in opt]
+        length = tour_length(opt, prob.dist)
+        print("Optimized tour:", formal_tour)
+        print("Tour length:", length)
 
 
 if __name__ == '__main__':
@@ -161,4 +181,4 @@ if __name__ == '__main__':
     problem = read_ttp(path)
     problem.info()
 
-    clk(problem, 1)
+    clk(problem, 5)
