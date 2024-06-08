@@ -10,6 +10,10 @@ Validate the idea of multi-objectivisation via the combinatorial optimisation pr
 - Non-dominated Sorting MCGA-II
 - 双目标非支配排序遗传算法
 
+## Algorithm Diagrams
+
+![Algorithm Flowchart](images/CLKGA.png)
+
 ## Run on your own PCs (wait for editing)
 
 1. 克隆项目到本地：
