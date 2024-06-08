@@ -1,12 +1,11 @@
-# 项目名称
+# Lab: Multi-objectivisation
 
-简要描述项目的目的和功能。
+Validate the idea of multi-objectivisation via the combinatorial optimisation problem: Travelling Thief Problem
 
-## 主要功能
+## Implemented Algorithms
 
-- 功能一
-- 功能二
-- ...
+- Multi-Component Genetic Algorithm (MCGA)
+- Non-dominated Sorting MCGA
 
 ## 安装
 
