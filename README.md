@@ -7,7 +7,7 @@ Validate the idea of multi-objectivisation via the combinatorial optimisation pr
 - Multi-Component Genetic Algorithm (MCGA)
 - Non-dominated Sorting MCGA
 
-## 安装
+## Run on your own PCs (wait for editing)
 
 1. 克隆项目到本地：
     ```bash
