@@ -12,7 +12,8 @@ Validate the idea of multi-objectivisation via the combinatorial optimisation pr
 
 ## Algorithm Diagrams
 
-![Algorithm Flowchart](images/CLKGA.png)
+MCGA
+![Algorithm Flowchart](image/MCGA.png)
 
 ## Run on your own PCs (wait for editing)
 
