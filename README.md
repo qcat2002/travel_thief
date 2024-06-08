@@ -1,10 +1,9 @@
 # Lab: Multi-objectivisation
 
-Validate the idea of multi-objectivisation via the combinatorial optimisation problem: Travelling Thief Problem
-通过旅行贼组合优化问题来验证多目标化的思想
+Validate the idea of multi-objectivisation via the combinatorial optimisation problem: Travelling Thief Problem  
+\n通过旅行贼组合优化问题来验证多目标化的思想
 
 ## Implemented Algorithms
-植入算法
 
 - Multi-Component Genetic Algorithm (MCGA)
 - 多元遗传算法
