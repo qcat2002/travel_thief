@@ -32,7 +32,7 @@ Validate the idea of multi-objectivisation via the combinatorial optimisation pr
     python your_script.py
     ```
 
-## 使用
+## 使用 (wait for editing)
 
 1. 运行示例代码：
     ```bash
@@ -44,7 +44,7 @@ Validate the idea of multi-objectivisation via the combinatorial optimisation pr
     your_tool --option1 value1 --option2 value2
     ```
 
-## 贡献
+## 贡献 (wait for editing)
 
 如果您想贡献代码或报告错误，请按照以下步骤操作：
 
