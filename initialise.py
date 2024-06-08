@@ -28,6 +28,6 @@ def run(trial, your_type):
 
 
 if __name__ == '__main__':
-    ty = 4
-    for trying in range(3):
+    ty = 5
+    for trying in range(5):
         run(trying + 1, ty)

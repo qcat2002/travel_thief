@@ -13,7 +13,6 @@ def get_inits(tsp_path):
 
 
 def violate(prob, ind):
-    print('old', ind.vio)
     weight = 0
     for index in range(len(ind.kp)):
         if ind.kp[index] == 1:
@@ -23,11 +22,53 @@ def violate(prob, ind):
         ind.vio = True
     else:
         ind.vio = False
-    print('new', ind.vio)
-    print()
+
 
 def repair(prob, ind):
-    pass
+    picked_id = []
+    profit = []
+    weight = []
+    for index in range(len(ind.kp)):
+        if ind.kp[index] == 1:
+            picked_id.append(prob.item_ID[index])
+            profit.append(prob.profit[index])
+            weight.append(prob.weight[index])
+    # print(picked_id)
+    # print(profit)
+    # print(weight)
+    ratio = sorted([(picked_id[c], profit[c]/weight[c]) for c in range(len(picked_id))], key=lambda x: x[1])
+    print(ratio)
+    while ind.vio:
+        id = ratio[0][0]
+        ind.kp[id-1] = 0
+        violate(prob, ind)
+        ratio = ratio[1:]
+    # print(ind.kp)
+    # print(ind.weight, prob.W)
+    print()
+
+
+def evaluate(prob, item_id_at_city, ind):
+    profit = 0
+    weight = 0
+    time = 0
+    v = (prob.max_speed - prob.min_speed) / prob.W
+    for index in range(len(ind.tour)-1):
+        this_city = ind.tour[index]
+        next_city = ind.tour[index+1]
+        # print(this_city, next_city)
+        distance = prob.dist[this_city][next_city]
+        items = item_id_at_city[this_city]
+        for item_id in items:
+            if ind.kp[item_id-1] == 1:
+                profit += prob.profit[item_id-1]
+                weight += prob.weight[item_id-1]
+        time += distance / (prob.max_speed - (v * weight))
+    ind.profit = profit
+    ind.time = time
+    ind.fitness = profit - (prob.W * time)
+
+
 
 def algorithm(ttp_path, tsp_path):
     prob = init.read_ttp(ttp_path)
@@ -47,16 +88,19 @@ def algorithm(ttp_path, tsp_path):
         for index in range(len(prob.item_ID)):
             if city_id == prob.belongto[index]:
                 items.append(prob.item_ID[index])
-        item_id_at_city[city_id] = items
+        item_id_at_city[city_id-1] = items
 
     kp = [0] * len(prob.item_ID)
 
     pop = []
     for indicator in range(pop_size):
-        ind = encode.Ind(tours_200[indicator], kp)
+        ind = encode.Ind(tours_200[indicator][:], kp[:])
         violate(prob, ind)
+        if ind.vio:
+            repair(prob, ind)
+        evaluate(prob, item_id_at_city, ind)
         pop.append(ind)
-    print(len(pop))
+
 
 
 if __name__ == '__main__':
