@@ -4,9 +4,11 @@ import random
 import multiprocessing as mp
 import os
 
+
 class Tours:
     def __init__(self):
         self.tours = []
+
 
 class Problem:
     def __init__(self):
@@ -56,6 +58,14 @@ class Problem:
         # print(len(self.dist), len(self.dist[0]))
 
 
+def read_tour(path):
+    with open(path, 'r') as f:
+        reader = csv.reader(f, delimiter=' ')
+        tours = []
+        for row in reader:
+            tours.append([int(string_num) for string_num in row])
+        return tours
+
 
 def read_ttp(path):
     debug = False  # debug indicator
@@ -95,7 +105,8 @@ def read_ttp(path):
             for row in range(prob.total_cities):
                 for col in range(prob.total_cities):
                     prob.dist[row][col] = ([row + 1, col + 1],
-                                           math.sqrt((prob.X[row] - prob.X[col]) ** 2 + (prob.Y[row] - prob.Y[col]) ** 2))
+                                           math.sqrt(
+                                               (prob.X[row] - prob.X[col]) ** 2 + (prob.Y[row] - prob.Y[col]) ** 2))
         else:
             for row in range(prob.total_cities):
                 for col in range(prob.total_cities):
@@ -116,7 +127,7 @@ def tour_length(tour, dist):
 
 
 def two_opt_swap(tour, i, j):
-    new_tour = tour[:i] + tour[i:j+1][::-1] + tour[j+1:]
+    new_tour = tour[:i] + tour[i:j + 1][::-1] + tour[j + 1:]
     return new_tour
 
 
@@ -149,12 +160,12 @@ def clk(prob, pop_size):
     tours = mp.Queue()
     processes = []
     for id in range(pop_size):
-        init_tour = [num-1 for num in prob.city_ID[1:]]
+        init_tour = [num - 1 for num in prob.city_ID[1:]]
         random.shuffle(init_tour)
         init_tour = [0] + init_tour
         print(f'处理器-{id}开始：')
         print(init_tour)
-        p = mp.Process(target=lk, args=(init_tour, prob.dist, tours, id+1))
+        p = mp.Process(target=lk, args=(init_tour, prob.dist, tours, id + 1))
         processes.append(p)
         p.start()
 
@@ -172,66 +183,30 @@ def clk(prob, pop_size):
         if index_init != 0:
             opt = opt[index_init:] + opt[:index_init]
         raw_routes.append(opt)
-        formal_tour = [num+1 for num in opt]
+        formal_tour = [num + 1 for num in opt]
         length = tour_length(opt, prob.dist)
         print("Optimized tour:", formal_tour)
         print("Tour length:", length)
     return raw_routes
 
 
-def draw(prob, routes, timer):
-    import matplotlib.pyplot as plt
-    row = 2
-    col = 4
-    fig, axes = plt.subplots(nrows=row, ncols=col, figsize=(24, 12), dpi=300)
-
-    # 假设您有一个名为 prob 的对象，其中包含 X 和 Y 坐标
-    # 您需要将 prob.X 和 prob.Y 替换为您的实际数据
-    colors = ['orange', (135/255, 206/255, 250/255)]
-    indicator = 0
-    for x in range(row):
-        for y in range(col):
-            axes[x, y].scatter(prob.X, prob.Y, color='black')  # 在每个子图上绘制散点图
-            axes[x, y].tick_params(axis='both', which='major', labelsize=18, width=3, length=6)  # 设置刻度标签的样式
-            xs = []
-            ys = []
-            for index in range(len(routes[indicator])):
-                xs.append(prob.X[routes[indicator][index]])
-                ys.append(prob.Y[routes[indicator][index]])
-            xs.append(prob.X[routes[indicator][0]])
-            ys.append(prob.Y[routes[indicator][0]])
-            axes[x, y].plot(xs, ys, color=colors[x%len(colors)])
-            indicator += 1
-    # else:
-    #     for y in range(col):
-    #         axes[y].scatter(prob.X, prob.Y)
-    #         axes[y].tick_params(axis='both', which='major', labelsize=18, width=3, length=6)
-
-    save = os.path.join('result', 'clk_tours')
-    if not os.path.exists(save):
-        os.makedirs(save)
-    fig.suptitle(f'clk_tours-trials{((timer-1)*8)+1}~{timer*8}', fontsize=26, fontweight='bold')
-    plt.tight_layout()
-    plt.savefig(os.path.join(save, f'clk_tours-{timer}.png'))
-    plt.show()
-
 
 if __name__ == '__main__':
-    path = 'data/dataset/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp'
-    problem = read_ttp(path)
+    ttp_path = 'data/dataset/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp'
+    problem = read_ttp(ttp_path)
     problem.info()
     inds = 40
     sub = 8
     rs = clk(problem, inds)
     processed = 0
     runtime = 0
-    while processed < inds:
-        seg = rs[processed:processed+sub]
-        draw(problem, seg, runtime+1)
-        runtime += 1
-        processed += sub
+    # while processed < inds:
+    #     seg = rs[processed:processed + sub]
+    #     draw(problem, seg, runtime + 1)
+    #     runtime += 1
+    #     processed += sub
 
-    file = os.path.join('result', 'clk_tours','tsp-?.csv')
+    file = os.path.join('result', 'clk_tours', 'tsp-?.csv')
     with open(file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=' ')
         for row in rs:

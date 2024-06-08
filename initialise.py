@@ -3,7 +3,7 @@ import csv
 import os
 
 
-def run(trial, type):
+def run(trial, your_type):
     path = 'data/dataset/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp'
     problem = ini.read_ttp(path)
     problem.info()
@@ -18,9 +18,9 @@ def run(trial, type):
     #     runtime += 1
     #     processed += sub
 
-    file = os.path.join('result', 'clk_tours', f'type-{type}', f'batch-{trial}', f'tsp-{trial}.csv')
-    if not os.path.exists(os.path.join('result', 'clk_tours', f'type-{type}', f'batch-{trial}')):
-        os.makedirs(os.path.join('result', 'clk_tours', f'type-{type}', f'batch-{trial}'))
+    file = os.path.join('result', 'clk_tours', f'type-{your_type}', f'batch-{trial}', f'tsp-{trial}.csv')
+    if not os.path.exists(os.path.join('result', 'clk_tours', f'type-{your_type}', f'batch-{trial}')):
+        os.makedirs(os.path.join('result', 'clk_tours', f'type-{your_type}', f'batch-{trial}'))
     with open(file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=' ')
         for row in rs:
