@@ -125,7 +125,7 @@ def lk(tour, dist, tours, id):
     best_length = tour_length(best_tour, dist)
     improvement = True
     budget = 10000000
-    budget = 100
+    # budget = 100
     while improvement and budget > 0:
         improvement = False
         for i in range(1, len(tour) - 1):  # 从1开始，跳过第一个城市
@@ -135,7 +135,7 @@ def lk(tour, dist, tours, id):
                 budget -= 1
                 if new_length < best_length:
                     # print('更新')
-                    print(f'处理器{id}->更新{new_length}')
+                    print(f'{id}->{new_length}')
                     # print(new_tour)
                     best_tour = new_tour[:]
                     best_length = new_length
@@ -198,8 +198,8 @@ def draw(prob, routes, timer):
             for index in range(len(routes[indicator])):
                 xs.append(prob.X[routes[indicator][index]])
                 ys.append(prob.Y[routes[indicator][index]])
-            xs.append(prob.X[routes[indicator][-1]])
-            ys.append(prob.Y[routes[indicator][-1]])
+            xs.append(prob.X[routes[indicator][0]])
+            ys.append(prob.Y[routes[indicator][0]])
             axes[x, y].plot(xs, ys, color=colors[x%len(colors)])
             indicator += 1
     # else:
@@ -231,7 +231,7 @@ if __name__ == '__main__':
         runtime += 1
         processed += sub
 
-    file = os.path.join('result', 'clk_tours','tsp-1.csv')
+    file = os.path.join('result', 'clk_tours','tsp-2.csv')
     with open(file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=' ')
         for row in rs:
