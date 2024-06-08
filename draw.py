@@ -55,5 +55,5 @@ def run(path, your_type):
 
 if __name__ == '__main__':
     ttp_path = 'data/dataset/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp'
-    ty = 3
+    ty = 4
     run(ttp_path, ty)
