@@ -135,7 +135,7 @@ def lk(tour, dist, tours, id):
     best_tour = tour[:]
     best_length = tour_length(best_tour, dist)
     improvement = True
-    budget = 10000000
+    budget = 1000000
     # budget = 100
     while improvement and budget > 0:
         improvement = False

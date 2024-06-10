@@ -9,3 +9,12 @@ class Ind:
         # bi-objective
         self.profit = 0
         self.time = 0
+
+    def copy(self):
+        ind = Ind(self.tour, self.kp)
+        ind.fitness = self.fitness
+        ind.weight = self.weight
+        ind.profit = self.profit
+        ind.time = self.time
+        ind.vio = self.vio
+        return ind
