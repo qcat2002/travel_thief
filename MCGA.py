@@ -211,7 +211,7 @@ def algorithm(ttp_path, tsp_path):
         old_pop = sorted(old_pop, key=lambda x: x.fitness, reverse=True)
         elites = old_pop[:num_elite]
         bests.append(elites[0].fitness)
-        print(gen, [ind.fitness for ind in elites])
+        print(gen, elites[0].fitness)
 
         parents = []
         while len(parents) <= pop_size:
