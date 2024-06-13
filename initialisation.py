@@ -5,11 +5,6 @@ import multiprocessing as mp
 import os
 
 
-class Tours:
-    def __init__(self):
-        self.tours = []
-
-
 class Problem:
     def __init__(self):
         self.name = ''
@@ -188,7 +183,6 @@ def clk(prob, pop_size):
         print("Optimized tour:", formal_tour)
         print("Tour length:", length)
     return raw_routes
-
 
 
 if __name__ == '__main__':
