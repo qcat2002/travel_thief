@@ -2,7 +2,18 @@ from pathlib import Path
 import os
 import re
 
-ttp_file_name = ''
+class problem:
+    def __init__(self, dataset_name, num_city, num_item, dataset_path):
+        self.dataset_name = dataset_name
+        self.num_city = num_city
+        self.num_item = num_item
+        self.dataset_path = dataset_path
+
+    def display_problem(self):
+        print(self.dataset_name)
+        print(self.num_city)
+        print(self.num_item)
+        print(self.dataset_path)
 
 def update_ttps():
     global ttps
@@ -26,13 +37,8 @@ def update_ttps():
         # print(details[key])
 
 
-
-def read_ttp(path):
-    pass
-
-
-def init():
-    global ttp_file_name
+def ask_path():
+    print('**确定目标数据集及其文件地址**')
     for key, value in ttps.items():
         print(key, value)
     reply = input('请选择数据集: ')
@@ -40,10 +46,10 @@ def init():
     print()
     pairs = details[reply]
     for index in range(len(pairs)):
-        print(index, pairs[index][1])
+        print(index+1, pairs[index][1])
     print('如果你是在初始化-路径，请勿担心后续类型选择！(随意选择即可！)')
     reply = int(input('请选择物品数量: '))
-    pair = pairs[reply]
+    pair = pairs[reply-1]
     print()
     for key, value in kp_types.items():
         print(key, value)
@@ -51,18 +57,35 @@ def init():
     kp_type = kp_types[reply]
     print()
     print('你的选择是: ')
-    ttp_file_name = f'n{pair[0]}_n{pair[1]}_{kp_type}_01.ttp'
-    print(ttp_file_name)
+    ttp_file_path = f'n{pair[0]}_n{pair[1]}_{kp_type}_01.ttp'
+    print(ttp_file_path)
+    prob = problem(dataset, pair[0], pair[1], ttp_file_path)
+    return prob
+
+
+def init():
+    prob = ask_path()
+    prob.display_problem()
+
+
+def algorithm():
+    prob = ask_path()
+    print()
+    print('**确认算法**')
+    for key, value in algorithms.items():
+        print(key, value[0])
+    reply = input('请选择算法: ')
 
 
 # initialise tours or run algorithms?
 work_type = {
     '1': ('初始化-路径', init),
-    '2': ('运行-TTP算法', None)
+    '2': ('运行-TTP算法', algorithm)
 }
 
 algorithms = {
-    '1': ('MCGA with CLK', None)
+    '1': ('MCGA', None),
+    '2': ('MCGA with CLK', None)
 }
 
 kp_types = {
