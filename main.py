@@ -1,10 +1,14 @@
 from pathlib import Path
+import tool
+import MCGA
 import os
 import re
 
-class problem:
-    def __init__(self, dataset_name, num_city, num_item, dataset_path):
+
+class Problem:
+    def __init__(self, dataset_name, dataset_file_name, num_city, num_item, dataset_path):
         self.dataset_name = dataset_name
+        self.dataset_file_name = dataset_file_name
         self.num_city = num_city
         self.num_item = num_item
         self.dataset_path = dataset_path
@@ -14,6 +18,17 @@ class problem:
         print(self.num_city)
         print(self.num_item)
         print(self.dataset_path)
+
+
+def saver(pop, bests, algorithm, kp_type, prob, info):
+    save_folder = os.path.join('result', algorithm, prob.dataset_name, str(prob.num_item), kp_type)
+    print(save_folder)
+    if not os.path.exists(save_folder):
+        os.makedirs(save_folder)
+    files = [f for f in os.listdir(save_folder) if os.path.isfile(os.path.join(save_folder, f))]
+    order = len(files)
+    print(order)
+    # with open()
 
 def update_ttps():
     global ttps
@@ -57,34 +72,44 @@ def ask_path():
     kp_type = kp_types[reply]
     print()
     print('你的选择是: ')
-    ttp_file_path = f'n{pair[0]}_n{pair[1]}_{kp_type}_01.ttp'
-    print(ttp_file_path)
-    prob = problem(dataset, pair[0], pair[1], ttp_file_path)
-    return prob
+    part1 = dataset.split('-')[0]
+    ttp_file_name = f'{part1}_n{pair[1]}_{kp_type}_01.ttp'
+    print(ttp_file_name)
+    file_path = os.path.abspath(os.path.join('dataset', dataset, ttp_file_name))
+    prob = Problem(dataset, ttp_file_name, [0], pair[1], file_path)
+    return prob, kp_type
 
 
-def init():
-    prob = ask_path()
-    prob.display_problem()
+def ask_init():
+    prob, kp_type = ask_path()
 
 
-def algorithm():
-    prob = ask_path()
+
+def ask_algorithm():
+    prob, kp_type = ask_path()
     print()
     print('**确认算法**')
     for key, value in algorithms.items():
         print(key, value[0])
     reply = input('请选择算法: ')
+    alg = algorithms[reply][0]
+    algorithm = algorithms[reply][1]
+    info = tool.read_ttp(prob.dataset_path)
+    info.dispaly_info()
+    max_gen = 10
+    pop, bests = algorithm(max_gen, info)
+    saver(pop, bests, alg, kp_type, prob, info)
+
 
 
 # initialise tours or run algorithms?
 work_type = {
-    '1': ('初始化-路径', init),
-    '2': ('运行-TTP算法', algorithm)
+    '1': ('初始化-路径', ask_init),
+    '2': ('运行-TTP算法', ask_algorithm)
 }
 
 algorithms = {
-    '1': ('MCGA', None),
+    '1': ('MCGA', MCGA.run),
     '2': ('MCGA with CLK', None)
 }
 
