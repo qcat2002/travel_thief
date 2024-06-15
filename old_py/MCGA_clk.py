@@ -284,11 +284,11 @@ def save(pop, bests, prob, path):
 if __name__ == '__main__':
     your_type = 2
     ttp_path_main = 'data/dataset/a280-ttp/a280_n279_bounded-strongly-corr_01.ttp'
-    tsp_path_main = os.path.join('result', 'clk_tours', f'type-{your_type}')
+    tsp_path_main = os.path.join('../result', 'clk_tours', f'type-{your_type}')
     finish_population, bests, problem = algorithm_clk(ttp_path_main, tsp_path_main)
 
     trial = 1
-    save_folder = os.path.join('result', 'mcga', 'a280-ttp')
+    save_folder = os.path.join('../result', 'mcga', 'a280-ttp')
     if not os.path.exists(save_folder):
         os.makedirs(save_folder)
     save_path = os.path.join(save_folder, f'trial-{trial}.csv')

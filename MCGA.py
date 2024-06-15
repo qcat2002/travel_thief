@@ -62,7 +62,7 @@ def run(max_gen, info):
             if mu:
                 tool.evaluate(info, ids_in_cities, ind)
         next_gen = elites + next_gen
-        bests.append(elites[0])
+        bests.append(max(next_gen, key=lambda x: x.fitness).fitness)
         print(generation, elites[0].fitness)
         pop = next_gen
     return pop, bests

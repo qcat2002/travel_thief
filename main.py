@@ -1,3 +1,4 @@
+import csv
 from pathlib import Path
 import tool
 import MCGA
@@ -27,8 +28,13 @@ def saver(pop, bests, algorithm, kp_type, prob, info):
         os.makedirs(save_folder)
     files = [f for f in os.listdir(save_folder) if os.path.isfile(os.path.join(save_folder, f))]
     order = len(files)
-    print(order)
-    # with open()
+    save_file_path = os.path.join(save_folder, f'result_{order+1}.csv')
+    with open(save_file_path, mode='w', newline='') as f:
+        writer = csv.writer(f, delimiter='\t')
+        writer.writerow(bests)
+        for ind in pop:
+            writer.writerow(ind.tour)
+            writer.writerow(ind.kp)
 
 def update_ttps():
     global ttps
@@ -96,7 +102,7 @@ def ask_algorithm():
     algorithm = algorithms[reply][1]
     info = tool.read_ttp(prob.dataset_path)
     info.dispaly_info()
-    max_gen = 10
+    max_gen = 5000
     pop, bests = algorithm(max_gen, info)
     saver(pop, bests, alg, kp_type, prob, info)
 
@@ -134,4 +140,5 @@ def run():
     print()
     work_func()
 
-run()
+if __name__ == '__main__':
+    run()
