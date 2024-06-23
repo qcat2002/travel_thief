@@ -30,7 +30,7 @@ def run(max_gen, info):
     num_elite = 12
     order_cross = 1
     n_point_cross = 1
-    opt_mutate = 0.85
+    opt_mutate = 0.8
     flip_mutate = 0.825
     bests = []
     times = []
