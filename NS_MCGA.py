@@ -26,7 +26,7 @@ def bi_tournament(inda, indb):
 
 
 def run(max_gen, info):
-    pop_size = 320
+    pop_size = 460
     num_elite = 12
     order_cross = 1
     n_point_cross = 1
