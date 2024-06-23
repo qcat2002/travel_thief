@@ -26,11 +26,11 @@ def bi_tournament(inda, indb):
 
 
 def run(max_gen, info):
-    pop_size = 300
+    pop_size = 400
     num_elite = 12
     order_cross = 1
     n_point_cross = 1
-    opt_mutate = 0.6
+    opt_mutate = 0.7
     flip_mutate = 0.825
     bests = []
     times = []
@@ -69,10 +69,11 @@ def run(max_gen, info):
         bests.append(best.fitness)
         times.append(best.time)
         profits.append(best.profit)
-        print('time', new_pop[fronts[0][0]].time, new_pop[fronts[0][-1]].time)
-        print('profit', new_pop[fronts[0][0]].profit, new_pop[fronts[0][-1]].profit)
-        print(gen, best.fitness, best.time, best.profit)
+        if (gen+1) % 10 == 0:
+            print('time', new_pop[fronts[0][0]].time, new_pop[fronts[0][-1]].time)
+            print('profit', new_pop[fronts[0][0]].profit, new_pop[fronts[0][-1]].profit)
+            print(gen, best.fitness, best.time, best.profit)
 
-    return pop, bests, times, profits
+    return pop[:200], bests, times, profits
 
 
