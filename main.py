@@ -2,6 +2,8 @@ import csv
 from pathlib import Path
 import tool
 import MCGA
+import MAGA_clk
+import NS_MCGA
 import os
 import re
 
@@ -21,7 +23,7 @@ class Problem:
         print(self.dataset_path)
 
 
-def saver(pop, bests, algorithm, kp_type, prob, info):
+def saver(pop, bests, times, profits, algorithm, kp_type, prob, info):
     save_folder = os.path.join('result', algorithm, prob.dataset_name, str(prob.num_item), kp_type)
     print(save_folder)
     if not os.path.exists(save_folder):
@@ -32,6 +34,8 @@ def saver(pop, bests, algorithm, kp_type, prob, info):
     with open(save_file_path, mode='w', newline='') as f:
         writer = csv.writer(f, delimiter='\t')
         writer.writerow(bests)
+        writer.writerow(times)
+        writer.writerow(profits)
         for ind in pop:
             writer.writerow(ind.tour)
             writer.writerow(ind.kp)
@@ -102,9 +106,12 @@ def ask_algorithm():
     algorithm = algorithms[reply][1]
     info = tool.read_ttp(prob.dataset_path)
     info.dispaly_info()
-    max_gen = 5000
-    pop, bests = algorithm(max_gen, info)
-    saver(pop, bests, alg, kp_type, prob, info)
+    max_gen = 50000
+    # max_gen = 100
+    pop, bests, times, profits = algorithm(max_gen, info)
+    pop = sorted(pop, key=lambda x: x. fitness, reverse=True)
+    # print([ind.fitness for ind in pop])
+    saver(pop, bests, times, profits, alg, kp_type, prob, info)
 
 
 
@@ -116,7 +123,8 @@ work_type = {
 
 algorithms = {
     '1': ('MCGA', MCGA.run),
-    '2': ('MCGA with CLK', None)
+    '2': ('MCGA with CLK', MAGA_clk.run),
+    '3': ('NS_MCGA', NS_MCGA.run),
 }
 
 kp_types = {

@@ -1,6 +1,7 @@
 import random
 import csv
 import math
+import multiprocessing as mp
 
 
 class Information:
@@ -297,3 +298,182 @@ def crossover(p1, p2, order, n_point):
     c1 = Individual(new_tsp1, new_kp1)
     c2 = Individual(new_tsp2, new_kp2)
     return c1, c2
+
+
+def tour_length(tour, dist):
+    length = 0
+    for i in range(len(tour)):
+        length += dist[tour[i - 1]][tour[i]]
+    return length
+
+
+def two_opt_swap(tour, i, j):
+    new_tour = tour[:i] + tour[i:j + 1][::-1] + tour[j + 1:]
+    return new_tour
+
+
+def lk(tour, dist, tours, id):
+    best_tour = tour[:]
+    best_length = tour_length(best_tour, dist)
+    improvement = True
+    budget = len(tour)*2000
+    # budget = 100
+    while improvement and budget > 0:
+        improvement = False
+        for i in range(1, len(tour) - 1):  # 从1开始，跳过第一个城市
+            for j in range(i + 1, len(tour)):
+                new_tour = two_opt_swap(tour, i, j)
+                new_length = tour_length(new_tour, dist)
+                budget -= 1
+                if new_length < best_length:
+                    # print('更新')
+                    # print(f'{id}->{new_length}')
+                    # print(new_tour)
+                    best_tour = new_tour[:]
+                    best_length = new_length
+                    improvement = True
+        tour = best_tour[:]
+    print(f'处理器{id}预算用完！')
+    tours.put(best_tour)
+
+
+def clk(info, pop_size):
+    tours = mp.Queue()
+    processes = []
+    for id in range(pop_size):
+        init_tour = [num - 1 for num in info.city_ID[1:]]
+        random.shuffle(init_tour)
+        init_tour = [0] + init_tour
+        print(f'处理器-{id}开始：')
+        # print(init_tour)
+        p = mp.Process(target=lk, args=(init_tour, info.dist, tours, id + 1))
+        processes.append(p)
+        p.start()
+
+    exits = []
+    for p in processes:
+        p.join()
+        exits.append(p.exitcode)
+
+    raw_routes = []
+    while not tours.empty():
+        opt = tours.get()
+        index_init = 0
+        while opt[index_init] != 0:
+            index_init += 1
+        if index_init != 0:
+            opt = opt[index_init:] + opt[:index_init]
+        raw_routes.append(opt)
+        formal_tour = [num + 1 for num in opt]
+        length = tour_length(opt, info.dist)
+        # print("Optimized tour:", formal_tour)
+        # print("Tour length:", length)
+    return raw_routes
+
+
+def non_dominated_sorting(population):
+    """
+    Perform non-dominated sorting on the population of Individual objects.
+
+    Parameters:
+    population (list): List of Individual objects.
+
+    Returns:
+    list: List of fronts, where each front is a list of indices corresponding to solutions in that front.
+    """
+    fronts = [[]]
+    domination_counts = [0] * len(population)
+    dominated_solutions = [[] for _ in range(len(population))]
+
+    for p in range(len(population)):
+        for q in range(len(population)):
+            if (population[p].time < population[q].time and population[p].profit >= population[q].profit) or \
+                    (population[p].time <= population[q].time and population[p].profit > population[q].profit):
+                dominated_solutions[p].append(q)
+            elif (population[q].time < population[p].time and population[q].profit >= population[p].profit) or \
+                    (population[q].time <= population[p].time and population[q].profit > population[p].profit):
+                domination_counts[p] += 1
+
+        if domination_counts[p] == 0:
+            fronts[0].append(p)
+
+    i = 0
+    while fronts[i]:
+        next_front = []
+        for p in fronts[i]:
+            for q in dominated_solutions[p]:
+                domination_counts[q] -= 1
+                if domination_counts[q] == 0:
+                    next_front.append(q)
+        i += 1
+        fronts.append(next_front)
+
+    fronts.pop()  # Remove the last empty front
+    return fronts
+
+
+import numpy as np
+
+
+def crowding_distance(front, population):
+    """
+    Calculate the crowding distance for each solution in a front.
+
+    Parameters:
+    front (list): List of indices of solutions in the front.
+    population (list): List of Individual objects.
+
+    Returns:
+    list: Crowding distance for each solution in the front.
+    """
+    distances = [0] * len(front)
+    num_objectives = 2  # We have two objectives: time and profit
+
+    for m in range(num_objectives):
+        if m == 0:
+            # Sort by time
+            sorted_front = sorted(front, key=lambda x: population[x].time)
+        else:
+            # Sort by profit
+            sorted_front = sorted(front, key=lambda x: population[x].profit)
+
+        distances[0] = distances[-1] = float('inf')
+
+        for i in range(1, len(front) - 1):
+            if m == 0:
+                if population[sorted_front[-1]].time == population[sorted_front[0]].time:
+                    distances[i] += 0
+                else:
+                    distances[i] += (population[sorted_front[i + 1]].time - population[sorted_front[i - 1]].time) / \
+                                    (population[sorted_front[-1]].time - population[sorted_front[0]].time)
+            else:
+                if population[sorted_front[-1]].profit == population[sorted_front[0]].profit:
+                    distances[i] += 0
+                else:
+                    distances[i] += (population[sorted_front[i + 1]].profit - population[sorted_front[i - 1]].profit) / \
+                                    (population[sorted_front[-1]].profit - population[sorted_front[0]].profit)
+
+    return distances
+
+
+def selection(population, fronts, crowding_distances, num_individuals):
+    new_population = []
+    i = 0
+    while len(new_population) + len(fronts[i]) <= num_individuals:
+        for ind in fronts[i]:
+            new_population.append(population[ind].copying())
+        i += 1
+
+    sorted_front = sorted(
+        fronts[i],
+        key=lambda x: crowding_distances[i][fronts[i].index(x)],
+        reverse=True
+    )
+
+    for ind in sorted_front:
+        if len(new_population) < num_individuals:
+            new_population.append(population[ind].copying())
+        else:
+            break
+
+    return new_population
