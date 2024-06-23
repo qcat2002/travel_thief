@@ -24,11 +24,11 @@ def regular_initialise(info, pop_size):
     return pop, ids_in_cities
 
 def run(max_gen, info):
-    pop_size = 200
+    pop_size = 280
     num_elite = 12
     order_cross = 1
     n_point_cross = 1
-    opt_mutate = 0.35
+    opt_mutate = 0.4
     flip_mutate = 0.825
     bests = []
     times = []
@@ -70,7 +70,7 @@ def run(max_gen, info):
         profits.append(best.profit)
         print(generation, best.fitness, best.time, best.profit)
         pop = next_gen
-    return pop, bests, times, profits
+    return pop[:200], bests, times, profits
 
 
 
